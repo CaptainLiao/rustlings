@@ -65,6 +65,7 @@ mod tests {
         state.process(Message::Move(Point { x: 10, y: 15 }));
         state.process(Message::Quit);
 
+        
         assert_eq!(state.color, (255, 0, 255));
         assert_eq!(state.position.x, 10);
         assert_eq!(state.position.y, 15);
