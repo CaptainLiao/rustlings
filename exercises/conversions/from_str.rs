@@ -4,7 +4,7 @@
 // Additionally, upon implementing FromStr, you can use the `parse` method
 // on strings to generate an object of the implementor type.
 // You can read more about it at https://doc.rust-lang.org/std/str/trait.FromStr.html
-use std::num::ParseIntError;
+use std::num::{ParseIntError};
 use std::str::FromStr;
 
 #[derive(Debug, PartialEq)]
@@ -26,7 +26,7 @@ enum ParsePersonError {
     ParseInt(ParseIntError),
 }
 
-// I AM NOT DONE
+
 
 // Steps:
 // 1. If the length of the provided string is 0, an error should be returned
@@ -41,6 +41,28 @@ enum ParsePersonError {
 impl FromStr for Person {
     type Err = ParsePersonError;
     fn from_str(s: &str) -> Result<Person, Self::Err> {
+        if s.is_empty() {
+            return Err(ParsePersonError::Empty);
+        }
+
+        let vec: Vec<&str> = s.split(",").collect();
+        if vec.len() != 2 {
+            return Err(ParsePersonError::BadLen);
+        }
+
+        let name = vec[0];
+        if name.is_empty() {
+            return Err(ParsePersonError::NoName);
+        }
+        
+        if let Some(v) = vec.get(1) {
+            let age = v.parse::<usize>().map_err(|e| ParsePersonError::ParseInt(e))?;
+            return Ok(Person {
+                name: name.to_string(),
+                age
+            });
+        }
+        return Err(ParsePersonError::Empty)
     }
 }
 
@@ -95,7 +117,7 @@ mod tests {
     fn missing_name_and_age() {
         assert!(matches!(
             ",".parse::<Person>(),
-            Err(ParsePersonError::NoName | ParsePersonError::ParseInt(_))
+            Err(ParsePersonError::NoName)
         ));
     }
 
@@ -103,7 +125,7 @@ mod tests {
     fn missing_name_and_invalid_age() {
         assert!(matches!(
             ",one".parse::<Person>(),
-            Err(ParsePersonError::NoName | ParsePersonError::ParseInt(_))
+            Err(ParsePersonError::NoName)
         ));
     }
 
